@@ -1,6 +1,6 @@
 // .devcontainer/devcontainer.json
 {
-    "name": "cliff-k8s-config-pace",
+    "name": "devpod-template",
     "dockerComposeFile": [
         "./docker-compose.dev.yml"
     ],
