@@ -79,6 +79,10 @@ RUN python3 -m venv /home/${DockerUSER}/.azure-cli-env && \
     /home/${DockerUSER}/.azure-cli-env/bin/pip install azure-cli && \
     sudo ln -s /home/${DockerUSER}/.azure-cli-env/bin/az /usr/local/bin/az
 
+# Install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    sudo ln -s /home/${DockerUSER}/.cargo/bin/uv /usr/local/bin/uv
+
 # NVM compatibility on Alpine is tricky because it relies on glibc prebuilt binaries for node.
 # Since we installed nodejs/npm via apk, we might skip nvm, OR use nvm with source compilation (slow).
 # The original dockerfile used nvm. Let's try to keep nvm but it might fail to run node unless we simple use system node.
