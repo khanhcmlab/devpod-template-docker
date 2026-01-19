@@ -57,6 +57,9 @@ RUN if getent passwd $DockerUID > /dev/null; then userdel -rf $(getent passwd $D
 
 USER $DockerUSER
 
+# Add .cargo/bin and .local/bin to PATH for uv and installed tools
+ENV PATH="/home/${DockerUSER}/.cargo/bin:/home/${DockerUSER}/.local/bin:$PATH"
+
 # Install Oh My Zsh
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
     git clone https://github.com/zsh-users/zsh-autosuggestions /home/${DockerUSER}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
@@ -82,6 +85,9 @@ RUN python3 -m venv /home/${DockerUSER}/.azure-cli-env && \
 # Install uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
     sudo ln -s /home/${DockerUSER}/.cargo/bin/uv /usr/local/bin/uv
+
+# Install specify-cli
+RUN /home/${DockerUSER}/.cargo/bin/uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
 
 # NVM compatibility on Alpine is tricky because it relies on glibc prebuilt binaries for node.
 # Since we installed nodejs/npm via apk, we might skip nvm, OR use nvm with source compilation (slow).
