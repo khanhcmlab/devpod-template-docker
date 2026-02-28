@@ -36,7 +36,7 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repos
     github-cli \
     kubectl \
     helm \
-    terraform \
+    libc6-compat \
     python3 \
     py3-pip \
     go \
@@ -46,8 +46,8 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repos
     npm \
     uv
 
-# Install Gemini CLI
-RUN npm install -g @google/gemini-cli
+# Install Gemini CLI & Copilot CLI
+# RUN npm install -g @google/gemini-cli @github/copilot
 
 # Setup user and group
 # Note: 'shadow' package provides useradd/groupadd if preferred, but Alpine native is adduser/addgroup.
@@ -71,6 +71,14 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
     git clone https://github.com/lukechilds/zsh-nvm /home/${DockerUSER}/.oh-my-zsh/custom/plugins/zsh-nvm
 
 # Install manual tools not in apk or better handled manually
+# Terraform
+# RUN TERRAFORM_VERSION="1.8.1" && \
+#     ARCH=$(uname -m) && \
+#     if [ "$ARCH" = "x86_64" ]; then TF_ARCH="amd64"; else TF_ARCH="arm64"; fi && \
+#     curl -fsSL "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${TF_ARCH}.zip" -o /tmp/terraform.zip && \
+#     sudo unzip /tmp/terraform.zip -d /usr/local/bin/ && \
+#     rm /tmp/terraform.zip
+
 # Kubectx/kubens
 RUN sudo curl -L https://github.com/ahmetb/kubectx/releases/latest/download/kubectx -o /usr/local/bin/kubectx && \
     sudo chmod +x /usr/local/bin/kubectx && \
@@ -78,26 +86,26 @@ RUN sudo curl -L https://github.com/ahmetb/kubectx/releases/latest/download/kube
     sudo chmod +x /usr/local/bin/kubens
 
 # Azure Kubelogin
-RUN ARCH=$(uname -m) && \
-    if [ "$ARCH" = "x86_64" ]; then KUBELOGIN_ARCH="amd64"; else KUBELOGIN_ARCH="arm64"; fi && \
-    curl -L "https://github.com/Azure/kubelogin/releases/latest/download/kubelogin-linux-${KUBELOGIN_ARCH}.zip" -o /tmp/kubelogin.zip && \
-    unzip /tmp/kubelogin.zip -d /tmp && \
-    sudo mv "/tmp/bin/linux_${KUBELOGIN_ARCH}/kubelogin" /usr/local/bin/kubelogin && \
-    sudo chmod +x /usr/local/bin/kubelogin && \
-    rm -rf /tmp/kubelogin.zip /tmp/bin
+# RUN ARCH=$(uname -m) && \
+#     if [ "$ARCH" = "x86_64" ]; then KUBELOGIN_ARCH="amd64"; else KUBELOGIN_ARCH="arm64"; fi && \
+#     curl -L "https://github.com/Azure/kubelogin/releases/latest/download/kubelogin-linux-${KUBELOGIN_ARCH}.zip" -o /tmp/kubelogin.zip && \
+#     unzip /tmp/kubelogin.zip -d /tmp && \
+#     sudo mv "/tmp/bin/linux_${KUBELOGIN_ARCH}/kubelogin" /usr/local/bin/kubelogin && \
+#     sudo chmod +x /usr/local/bin/kubelogin && \
+#     rm -rf /tmp/kubelogin.zip /tmp/bin
 
 # Azure CLI via pip (official apk is often outdated or absent in main)
 # Note: Azure CLI can be heavy to build on Alpine due to dependencies (gcc, musl-dev, libffi-dev, openssl-dev).
 # We installed build-base and python3-dev (implied by python3 usually or added explicitly if needed).
 # Adding specific dev packages for azure-cli build if pip install fails.
 # Trying direct pip install.
-RUN python3 -m venv /home/${DockerUSER}/.azure-cli-env && \
-    /home/${DockerUSER}/.azure-cli-env/bin/pip install --upgrade pip && \
-    /home/${DockerUSER}/.azure-cli-env/bin/pip install azure-cli && \
-    sudo ln -s /home/${DockerUSER}/.azure-cli-env/bin/az /usr/local/bin/az
+# RUN python3 -m venv /home/${DockerUSER}/.azure-cli-env && \
+#     /home/${DockerUSER}/.azure-cli-env/bin/pip install --no-cache-dir --upgrade pip && \
+#     /home/${DockerUSER}/.azure-cli-env/bin/pip install --no-cache-dir azure-cli && \
+#     sudo ln -s /home/${DockerUSER}/.azure-cli-env/bin/az /usr/local/bin/az
 
 # Install specify-cli (uv is installed via apk)
-RUN uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+# RUN uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
 
 # NVM compatibility on Alpine is tricky because it relies on glibc prebuilt binaries for node.
 # Since we installed nodejs/npm via apk, we might skip nvm, OR use nvm with source compilation (slow).
