@@ -45,7 +45,7 @@ RUN echo "Installing Homebrew..." && \
     /home/${DockerUSER}/.bashrc
 
 
-RUN brew install starship lazygit fzf fd ripgrep tmux btop eza neovim zsh gh azure-cli kubectx python go rust
+RUN brew install starship lazygit fzf fd ripgrep tmux btop eza neovim zsh gh azure-cli kubectx kubectl helm terraform kubelogin python go rust
 
 
 
