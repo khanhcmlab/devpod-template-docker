@@ -2,12 +2,13 @@
 {
     "name": "devpod-template",
     "dockerComposeFile": [
-        "./docker-compose.dev.yml"
+        // "./docker-compose.dev.yml"
+        "./docker-compose.win.yml"
     ],
     "service": "devpod",
     "containerUser": "${localEnv:USER}",
     "initializeCommand": "powershell -ExecutionPolicy Bypass -File ./.devcontainer/scripts/initialize-command.ps1",
-    // "initializeCommand": "${localWorkspaceFolder}/.devcontainer/scripts/initialize-command.sh", 
+    // "initializeCommand": "${localWorkspaceFolder}/.devcontainer/scripts/initialize-command.sh",
     // "postCreateCommand": ".devcontainer/scripts/post-create-command.sh",
     "mounts": [
         "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"

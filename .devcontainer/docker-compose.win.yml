@@ -1,8 +1,10 @@
 # .devcontainer/docker-comspose.dev.yml
-version: '4'
+version: '3.8'
 
 services:
   devpod:
+    env_file:
+      - .env
     build:
       context: .
       dockerfile: Dockerfile-alpine
