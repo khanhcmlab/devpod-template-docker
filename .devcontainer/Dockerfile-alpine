@@ -1,4 +1,3 @@
-# Use Alpine Linux latest as base image
 FROM alpine:latest
 
 ARG DockerUSER=deww

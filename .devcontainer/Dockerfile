@@ -47,9 +47,6 @@ RUN echo "Installing Homebrew..." && \
 
 RUN brew install starship lazygit fzf fd ripgrep tmux btop eza neovim zsh gh azure-cli kubectx kubectl helm terraform kubelogin python go rust
 
-
-
-
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
     git clone https://github.com/zsh-users/zsh-autosuggestions /home/${DockerUSER}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
     git clone https://github.com/lukechilds/zsh-nvm /home/${DockerUSER}/.oh-my-zsh/custom/plugins/zsh-nvm && \
