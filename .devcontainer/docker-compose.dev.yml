@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   devpod:
@@ -21,6 +21,10 @@ services:
       - ${HOME}/.local:/home/${USER}/.local:cached
       # Zsh history
       - ${HOME}/.zsh_history:/home/${USER}/.zsh_history:cached
+      # Antigravity
+      - ${HOME}/.antigravity:/home/${USER}/.antigravity:cached
+      # Gemini
+      - ${HOME}/.gemini:/home/${USER}/.gemini:cached
       # Home folder
       - ../:/home/${USER}/workspace
     working_dir: /home/${USER}/workspace

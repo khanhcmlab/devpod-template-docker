@@ -43,7 +43,7 @@
                         "path": "/home/linuxbrew/.linuxbrew/bin/zsh"
                     }
                 },
-                "workbench.colorTheme": "Default Dark+",
+                "workbench.colorTheme": "Ayu Mirage Bordered",
                 "workbench.iconTheme": "vscode-icons",
                 "editor.formatOnSave": true,
                 "[terraform]": {
@@ -79,7 +79,9 @@
                 "foxundermoon.shell-format",
                 "GitHub.copilot",
                 "GitHub.copilot-chat",
-                "GitHub.vscode-github-actions"
+                "GitHub.vscode-github-actions",
+                "teabyii.ayu",
+                "Google.geminicodeassist"
             ]
         }
     }
