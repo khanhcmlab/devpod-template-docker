@@ -2,14 +2,14 @@ version: "3.8"
 
 services:
   devpod:
-    build:
-      context: .
-      dockerfile: Dockerfile-alpine
-      args:
-        DockerUSER: ${CONTAINER_USER}
-        DockerUID: ${CONTAINER_UID}
-        DockerGID: ${CONTAINER_GID}
-    # image: dewwripper/devpod:alpine-0.0.1
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    #   args:
+    #     DockerUSER: ${CONTAINER_USER}
+    #     DockerUID: ${CONTAINER_UID}
+    #     DockerGID: ${CONTAINER_GID}
+    image: devpod:ubuntu-0.0.2
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       # - /var/run/docker.sock:/var/run/docker-host.sock

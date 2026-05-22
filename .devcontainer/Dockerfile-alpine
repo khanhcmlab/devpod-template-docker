@@ -115,7 +115,8 @@ ENV NVM_DIR="/home/${DockerUSER}/.nvm"
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 
 # Install Antigravity CLI
-RUN curl -fsSL https://antigravity.google/cli/install.sh | bash
+# Note: Antigravity CLI does not support musl-based systems (Alpine). Skipping.
+# RUN curl -fsSL https://antigravity.google/cli/install.sh | bash
 
 # Final shell
 CMD [ "zsh" ]

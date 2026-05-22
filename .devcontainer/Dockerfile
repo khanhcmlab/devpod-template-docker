@@ -1,5 +1,4 @@
-# Use Ubuntu 24.04 as the base image
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 ARG DockerUSER=deww
 ARG DockerUID=503
@@ -45,18 +44,37 @@ RUN echo "Installing Homebrew..." && \
     /home/${DockerUSER}/.bashrc
 
 
-RUN brew install starship lazygit fzf fd ripgrep tmux btop eza neovim zsh gh azure-cli kubectx kubectl helm terraform kubelogin python go rust
+RUN brew install starship lazygit fzf fd ripgrep tmux btop eza neovim zsh gh
 
+# Install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install Antigravity CLI
+RUN curl -fsSL https://antigravity.google/cli/install.sh | bash
+
+# Add .cargo/bin and .local/bin to PATH for uv and installed tools
+ENV PATH="/home/${DockerUSER}/.cargo/bin:/home/${DockerUSER}/.local/bin:$PATH"
+
+
+# Install Oh My Zsh
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
     git clone https://github.com/zsh-users/zsh-autosuggestions /home/${DockerUSER}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
-    git clone https://github.com/lukechilds/zsh-nvm /home/${DockerUSER}/.oh-my-zsh/custom/plugins/zsh-nvm && \
-    echo 'eval "$($HOMEBREW_PREFIX/bin/brew shellenv)"' >> /home/${DockerUSER}/.zshrc
-
+    git clone https://github.com/lukechilds/zsh-nvm /home/${DockerUSER}/.oh-my-zsh/custom/plugins/zsh-nvm
 
 # Install NVM, Node.js LTS, and update .zshrc
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash && \
     export NVM_DIR="$HOME/.nvm" && \
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
-    nvm install --lts
+    nvm install --lts && \
+    npm install -g @anthropic-ai/claude-code
+
+# Install Free Claude Code Proxy
+RUN uv python install 3.14 && \
+    uv tool install --force git+https://github.com/Alishahryar1/free-claude-code.git
+
+# Install OpenCode AI coding agent
+RUN curl -fsSL https://opencode.ai/install | bash
+
+EXPOSE 8082
 
 CMD [ "zsh" ]

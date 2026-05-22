@@ -13,7 +13,7 @@
     "mounts": [
         "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
     ],
-    // "forwardPorts": [3333],
+    "forwardPorts": [8082],
     "overrideCommand": true,
     "workspaceFolder": "/home/${localEnv:USER}/workspace",
     "remoteUser": "${localEnv:USER}",
