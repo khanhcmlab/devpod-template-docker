@@ -72,6 +72,9 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | b
 RUN uv python install 3.14 && \
     uv tool install --force git+https://github.com/Alishahryar1/free-claude-code.git
 
+# Install specify-cli (GitHub Spec Kit)
+RUN uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+
 # Install OpenCode AI coding agent
 RUN curl -fsSL https://opencode.ai/install | bash
 

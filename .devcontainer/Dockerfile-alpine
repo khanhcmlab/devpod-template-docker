@@ -104,7 +104,7 @@ RUN sudo curl -L https://github.com/ahmetb/kubectx/releases/latest/download/kube
 #     sudo ln -s /home/${DockerUSER}/.azure-cli-env/bin/az /usr/local/bin/az
 
 # Install specify-cli (uv is installed via apk)
-# RUN uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+RUN uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
 
 # NVM compatibility on Alpine is tricky because it relies on glibc prebuilt binaries for node.
 # Since we installed nodejs/npm via apk, we might skip nvm, OR use nvm with source compilation (slow).
