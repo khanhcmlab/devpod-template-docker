@@ -1,8 +1,8 @@
 FROM ubuntu:26.04
 
 ARG DockerUSER=deww
-ARG DockerUID=503
-ARG DockerGID=20
+ARG DockerUID=1000
+ARG DockerGID=1000
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"

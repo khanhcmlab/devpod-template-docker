@@ -11,7 +11,7 @@ services:
     #     DockerGID: ${CONTAINER_GID}
     image: devpod:ubuntu-0.0.2
     volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix
+      # - /tmp/.X11-unix:/tmp/.X11-unix
       # - /var/run/docker.sock:/var/run/docker-host.sock
       - /etc/timezone:/etc/timezone:cached
       - /etc/localtime:/etc/localtime:cached
