@@ -75,6 +75,9 @@ RUN echo "Installing Homebrew..." && \
 
 RUN brew install starship lazygit fzf fd ripgrep tmux btop eza neovim zsh gh python rust commitizen uv
 
+# Register Homebrew's zsh as a valid login shell and set it as default for the user
+RUN echo "/home/linuxbrew/.linuxbrew/bin/zsh" | sudo tee -a /etc/shells && \
+    sudo chsh -s /home/linuxbrew/.linuxbrew/bin/zsh $DockerUSER
 
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
   git clone https://github.com/zsh-users/zsh-autosuggestions /home/${DockerUSER}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
