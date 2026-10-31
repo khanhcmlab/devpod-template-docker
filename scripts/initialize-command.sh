@@ -21,6 +21,8 @@ create_directories() {
     mkdir -p "${HOME}/.ssh/"
     mkdir -p "${HOME}/.local/"
     mkdir -p "${HOME}/.gnupg/"
+    mkdir -p "${HOME}/.config/gh/"
+    mkdir -p "${HOME}/.tsh/"
     mkdir -p "${HOME}/.${REPO_PROJECT}/pre-commit-cache/"
     mkdir -p "${HOME}/.${REPO_PROJECT}/commandhistory.d"
     mkdir -p "${HOME}/.${REPO_PROJECT}/commandhistory.d/${REPO_NAME}/"

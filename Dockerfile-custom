@@ -1,7 +1,36 @@
 FROM devpod:0.0.1
 
-RUN brew install openshift-cli helm kubectl sops azure-cli kubectx rtk k9s jfrog-cli gemini-cli yamllint kustomize argocd && brew tap hashicorp/tap && brew install hashicorp/tap/terraform
+RUN brew install go openshift-cli helm kubectl sops azure-cli kubectx rtk k9s jfrog-cli gemini-cli yamllint kustomize argocd lazygit pre-commit direnv git-delta yq && \
+  brew tap hashicorp/tap && \
+  brew install hashicorp/tap/terraform
+
+# git-crypt depends on openssl@4; pulling it in as a dependency makes brew try to unlink openssl@3
+# and fail with "process has already locked .../Cellar/openssl@3". Installing openssl@4 on its own
+# first installs it next to openssl@3 without unlinking it, after which git-crypt installs cleanly.
+RUN brew install openssl@4 && brew install git-crypt
+
+RUN brew install go-task rsync trivy gomplate
+
+# Hook direnv into the shell so .envrc files (used throughout this repo) are loaded automatically
+RUN echo 'eval "$(direnv hook zsh)"' >> "${HOME}/.zshrc"
+
+# Install Claude Code (requires Node.js LTS installed via nvm in the base Dockerfile)
+RUN export NVM_DIR="$HOME/.nvm" && \
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
+  npm install -g @anthropic-ai/claude-code
+
+# Install code-review-graph (https://github.com/tirth8205/code-review-graph), a code knowledge graph
+# exposed to Claude Code as an MCP server. The real CLI lives in /opt (~/.local is bind-mounted from
+# the host and would hide it); a wrapper on PATH keeps graph data out of the client repositories.
+ARG CRG_VERSION=2.3.9
+RUN sudo mkdir -p /opt/code-review-graph && sudo chown "$(id -u):$(id -g)" /opt/code-review-graph && \
+  UV_TOOL_DIR=/opt/code-review-graph/tools UV_TOOL_BIN_DIR=/opt/code-review-graph/bin \
+  uv tool install "code-review-graph==${CRG_VERSION}" && \
+  /opt/code-review-graph/bin/code-review-graph --version
+COPY --chmod=0755 scripts/code-review-graph /usr/local/bin/code-review-graph
+# Per-user state (registry, graphs). ~/.local is mounted from the host, so graphs survive rebuilds.
+ENV CRG_HOME="/home/${DockerUSER}/.local/share/code-review-graph"
 
 RUN uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v0.12.8
 
-ENV PATH="${HOME}/.local/bin:${PATH}"
+ENV PATH="${HOME}/.local/bin:${HOME}/go/bin:${PATH}"

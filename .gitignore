@@ -1,3 +1,4 @@
+.env
 .devcontainer/.env
 .antigravitycli
 DS_Store

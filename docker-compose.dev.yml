@@ -1,0 +1,37 @@
+version: "4"
+
+services:
+  devpod:
+    # image: devpod:0.0.2
+    build:
+      context: .
+      dockerfile: Dockerfile-custom
+      # No build args: Dockerfile-custom inherits DockerUSER/DockerUID/DockerGID as ENV from the devpod base image
+      network: host
+    volumes:
+      # - /tmp/.X11-unix:/tmp/.X11-unix
+      # Docker-in-Docker: mount host Docker socket so the Docker CLI inside
+      # the container can build/run images via the host daemon
+      # - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/timezone:/etc/timezone:cached
+      - /etc/localtime:/etc/localtime:cached
+      # # SSH
+      - ${HOME}/.ssh:/home/${USER}/.ssh:cached
+      # Gemini CLI
+      - ${HOME}/.gemini:/home/${USER}/.gemini:cached
+      # Claude authentication
+      - ${HOME}/.claude.json:/home/${USER}/.claude.json:cached
+      - ${HOME}/.claude:/home/${USER}/.claude:cached
+      # Local share folder
+      - ${HOME}/.local:/home/${USER}/.local:cached
+      # Zsh history
+      - ${HOME}/.zsh_history:/home/${USER}/.zsh_history:cached
+      # Home folder
+      - ../:/home/${USER}/workspace
+    working_dir: /home/${USER}/workspace
+    network_mode: host
+    environment:
+      - HTTP_PROXY=${HTTP_PROXY}
+      - HTTPS_PROXY=${HTTPS_PROXY}
+      - NO_PROXY=${NO_PROXY}
+      - ARTIFACTORY_BDC_TOKEN=${ARTIFACTORY_TOKEN_BDC}

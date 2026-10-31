@@ -1,0 +1,38 @@
+#!/bin/bash
+# Wrapper around the real code-review-graph CLI that keeps client repositories untouched:
+#   - graph data goes to ${CRG_HOME}/graphs/<repo>-<hash> instead of <repo>/.code-review-graph/
+#   - `install` / `init` are blocked, since they write .mcp.json, CLAUDE.md, skills, hooks and
+#     .gitignore into the repo. The MCP server is registered at Claude Code user scope instead.
+# Set CRG_ALLOW_REPO_WRITES=1 to bypass the block, or CRG_DATA_DIR to choose the data dir yourself.
+set -euo pipefail
+
+REAL_BIN="${CRG_REAL_BIN:-/opt/code-review-graph/bin/code-review-graph}"
+
+case "${1:-}" in
+  install | init)
+    if [[ "${CRG_ALLOW_REPO_WRITES:-0}" != "1" ]]; then
+      echo "code-review-graph: '$1' is disabled in this devcontainer because it writes config into the repository." >&2
+      echo "The MCP server is already registered for Claude Code at user scope (see 'claude mcp get code-review-graph')." >&2
+      echo "Set CRG_ALLOW_REPO_WRITES=1 to run it anyway." >&2
+      exit 1
+    fi
+    ;;
+esac
+
+if [[ -z "${CRG_DATA_DIR:-}" ]]; then
+  # Resolve the repo the same way the CLI does: --repo if given, else the git root of the cwd
+  start_dir="${CRG_REPO_ROOT:-$PWD}"
+  args=("$@")
+  for i in "${!args[@]}"; do
+    case "${args[$i]}" in
+      --repo=*) start_dir="${args[$i]#--repo=}" ;;
+      --repo) start_dir="${args[$((i + 1))]:-$start_dir}" ;;
+    esac
+  done
+
+  repo_root="$(git -C "$start_dir" rev-parse --show-toplevel 2>/dev/null || realpath -m "$start_dir")"
+  hash="$(printf '%s' "$repo_root" | sha1sum | cut -c1-8)"
+  export CRG_DATA_DIR="${CRG_HOME}/graphs/$(basename "$repo_root")-${hash}"
+fi
+
+exec "$REAL_BIN" "$@"

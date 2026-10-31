@@ -1,0 +1,166 @@
+# Alpine variant of the devpod image (see ./Dockerfile for the Ubuntu/glibc base
+# and ./Dockerfile-custom for the tool layer built on top of it).
+#
+# Alpine uses musl instead of glibc, and Homebrew/linuxbrew does not support musl,
+# so this variant cannot reuse the brew-based install steps from the other two
+# Dockerfiles. Instead it installs everything through apk where possible, and
+# falls back to upstream release binaries (with gcompat/libc6-compat for the few
+# glibc-linked ones) for tools apk doesn't package. Keep the tool set here in
+# sync with Dockerfile + Dockerfile-custom when either changes.
+FROM alpine:latest
+
+ARG DockerUSER=deww
+ARG DockerUID=1000
+ARG DockerGID=1000
+ARG TARGETARCH
+
+ENV DockerUSER=${DockerUSER}
+ENV DockerUID=${DockerUID}
+ENV DockerGID=${DockerGID}
+ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+
+# The official alpine:latest image ships a commented-out community repo line;
+# uncomment the one matching this image's own release instead of pinning to
+# edge, which can pull in packages built against a different musl ABI.
+RUN sed -i '/community/s/^#//' /etc/apk/repositories
+
+# Configure apk proxy if HTTP_PROXY is set (apk also honors http_proxy/https_proxy
+# env vars natively, this just covers uppercase-only proxy setups)
+RUN if [ -n "${HTTP_PROXY}" ]; then \
+        echo "http_proxy=${HTTP_PROXY}" >> /etc/environment && \
+        echo "https_proxy=${HTTPS_PROXY}" >> /etc/environment; \
+    fi
+
+# Base OS tooling + CLI utilities that are available directly from apk.
+# gcompat/libc6-compat provide a glibc shim for the few upstream release
+# binaries below that are dynamically linked against glibc.
+RUN apk update && apk add --no-cache \
+  bash \
+  bash-completion \
+  curl \
+  ca-certificates \
+  gnupg \
+  git \
+  sudo \
+  shadow \
+  build-base \
+  linux-headers \
+  libffi-dev \
+  openssl-dev \
+  vim \
+  jq \
+  unzip \
+  tar \
+  openssh-client \
+  iproute2 \
+  bind-tools \
+  netcat-openbsd \
+  gcompat \
+  libc6-compat \
+  zsh \
+  starship \
+  lazygit \
+  fzf \
+  yq \
+  ripgrep \
+  fd \
+  tmux \
+  gnome-keyring \
+  pass \
+  btop \
+  eza \
+  neovim \
+  github-cli \
+  python3 \
+  python3-dev \
+  py3-pip \
+  go \
+  rust \
+  cargo \
+  nodejs \
+  npm \
+  uv \
+  sops \
+  kubectx \
+  k9s \
+  yamllint \
+  kustomize \
+  kubectl \
+  helm \
+  docker-cli \
+  docker-cli-buildx \
+  docker-cli-compose
+
+USER root
+
+# Create non-root user (mirrors Dockerfile) and grant docker-group access so
+# the docker CLI above can talk to the host daemon via the mounted socket
+RUN if getent passwd $DockerUID > /dev/null; then userdel -rf $(getent passwd $DockerUID | cut -d ':' -f 1); fi \
+  && groupadd --force --gid $DockerGID $DockerUSER \
+  && useradd --no-log-init --uid $DockerUID --gid $DockerGID -m -s /bin/zsh $DockerUSER \
+  && mkdir -p /etc/sudoers.d/ \
+  && echo "$DockerUSER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$DockerUSER \
+  && chmod 0440 /etc/sudoers.d/$DockerUSER \
+  && groupadd --force docker \
+  && usermod -aG docker $DockerUSER
+
+# Install ArgoCD CLI (latest stable, per ArgoCD's own documented install method)
+RUN set -eu && \
+  ARCH="${TARGETARCH:-$(uname -m | sed -e 's/x86_64/amd64/' -e 's/aarch64/arm64/')}" && \
+  ARGOCD_VERSION="$(curl -fsSL https://raw.githubusercontent.com/argoproj/argo-cd/stable/VERSION)" && \
+  curl -fsSL -o /usr/local/bin/argocd "https://github.com/argoproj/argo-cd/releases/download/v${ARGOCD_VERSION}/argocd-linux-${ARCH}" && \
+  chmod +x /usr/local/bin/argocd
+
+# Install Task (https://taskfile.dev/docs/installation) via the official
+# install script, into /usr/local/bin so it's available to all users
+RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+
+# Install rtk (https://github.com/rtk-ai/rtk) via the official install script,
+# pinned to a known-good version, into /usr/local/bin so it's available to all
+# users. The script verifies the release checksum. x86_64 ships a static musl
+# build; aarch64 is glibc-linked and relies on gcompat/libc6-compat above.
+ENV RTK_VERSION=v0.49.0
+RUN curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh \
+  | RTK_INSTALL_DIR=/usr/local/bin sh
+
+USER $DockerUSER
+
+# Add .local/bin, go/bin and krew's bin dir to PATH for uv-installed tools,
+# go install output, and krew-installed kubectl plugins
+ENV PATH="/home/${DockerUSER}/.local/bin:/home/${DockerUSER}/go/bin:/home/${DockerUSER}/.krew/bin:$PATH"
+
+# Install krew (kubectl plugin manager, https://krew.sigs.k8s.io/docs/user-guide/quickstart/)
+# and its oidc-login plugin for Kubernetes OIDC authentication
+RUN set -eu && \
+  ARCH="${TARGETARCH:-$(uname -m | sed -e 's/x86_64/amd64/' -e 's/aarch64/arm64/')}" && \
+  TMP_DIR="$(mktemp -d)" && \
+  cd "${TMP_DIR}" && \
+  KREW="krew-linux_${ARCH}" && \
+  curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" && \
+  tar -xzf "${KREW}.tar.gz" && \
+  "./${KREW}" install krew && \
+  cd / && \
+  rm -rf "${TMP_DIR}" && \
+  "${HOME}/.krew/bin/kubectl-krew" install oidc-login
+
+# commitizen & specify-cli (Python tools) via uv, avoids PEP 668 "externally managed environment"
+# issues with the apk-provided python3/pip
+RUN uv tool install commitizen && \
+  uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v0.12.8
+
+# Install Claude Code (Node.js is provided natively via apk on Alpine; nvm's
+# prebuilt Node binaries are glibc-linked and do not reliably run under musl,
+# so unlike Dockerfile we install straight onto the system Node instead of nvm)
+RUN sudo npm install -g @anthropic-ai/claude-code
+
+# Install Caveman Claude Code plugin (https://docs.caveman.so/docs/quickstart)
+RUN claude plugin marketplace add JuliusBrussee/caveman && \
+  claude plugin install caveman@caveman
+
+# Install Oh My Zsh + plugins/theme (zsh-nvm is skipped: no nvm on Alpine, Node
+# is managed by apk instead)
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
+  git clone https://github.com/zsh-users/zsh-autosuggestions /home/${DockerUSER}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git /home/${DockerUSER}/.oh-my-zsh/custom/themes/powerlevel10k
+
+CMD [ "zsh" ]

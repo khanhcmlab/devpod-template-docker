@@ -31,7 +31,10 @@ RUN apt-get update && apt-get install -y \
   jq \
   iproute2 \
   netcat-traditional \
-  dnsutils
+  dnsutils \
+  dbus-x11 \
+  gnome-keyring \
+  libsecret-1-0
 
 # Install Docker CLI, Buildx and Compose plugin (docker-in-docker via mounted host socket)
 RUN install -m 0755 -d /etc/apt/keyrings \
@@ -82,6 +85,7 @@ RUN echo "/home/linuxbrew/.linuxbrew/bin/zsh" | sudo tee -a /etc/shells && \
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
   git clone https://github.com/zsh-users/zsh-autosuggestions /home/${DockerUSER}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
   git clone https://github.com/lukechilds/zsh-nvm /home/${DockerUSER}/.oh-my-zsh/custom/plugins/zsh-nvm && \
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k" && \
   echo 'eval "$($HOMEBREW_PREFIX/bin/brew shellenv)"' >> /home/${DockerUSER}/.zshrc
 
 

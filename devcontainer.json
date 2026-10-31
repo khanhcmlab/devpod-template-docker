@@ -1,0 +1,98 @@
+{
+  "name": "devpod-template",
+  "dockerComposeFile": [
+    "./docker-compose.dev.yml"
+    // "./docker-compose.win.yml"
+  ],
+  "service": "devpod",
+  "containerUser": "${localEnv:USER}",
+  // "initializeCommand": "powershell -ExecutionPolicy Bypass -File ./.devcontainer/scripts/initialize-command.ps1",
+  "initializeCommand": "${localWorkspaceFolder}/.devcontainer/scripts/initialize-command.sh",
+  "postCreateCommand": "bash ${containerWorkspaceFolder}/.devcontainer/scripts/setup-claude-mcp.sh",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
+  ],
+  "overrideCommand": true,
+  "workspaceFolder": "/home/${localEnv:USER}/workspace",
+  "remoteUser": "${localEnv:USER}",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "password-store": "gnome-libsecret",
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "editor.detectIndentation": false,
+        "files.trimTrailingWhitespace": false,
+        "files.trimFinalNewlines": false,
+        "files.insertFinalNewline": true,
+        "files.autoSave": "off",
+        "files.exclude": {
+          "**/.git": true,
+          "**/.DS_Store": true,
+          "**/node_modules": true
+        },
+        "search.exclude": {
+          "**/node_modules": true
+        },
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/bash"
+          },
+          "zsh": {
+            "path": "/home/linuxbrew/.linuxbrew/bin/zsh"
+          }
+        },
+        "workbench.colorTheme": "Ayu Mirage Bordered",
+        "workbench.iconTheme": "vscode-icons",
+        "editor.formatOnSave": false,
+        "editor.formatOnSaveMode": "modificationsIfAvailable",
+        "[terraform]": {
+          "editor.defaultFormatter": "HashiCorp.terraform",
+          "editor.formatOnSave": true
+        },
+        "[yaml]": {
+          "editor.defaultFormatter": "redhat.vscode-yaml",
+          "editor.formatOnSave": false
+        },
+        "[jsonc]": {
+          "editor.formatOnSave": false
+        },
+        "[json]": {
+          "editor.formatOnSave": false
+        }
+      },
+      "extensions": [
+        "HashiCorp.terraform",
+        "AntonKulikov.terraform-ls",
+        "ms-azuretools.vscode-azureterraform",
+        "esbenp.prettier-vscode",
+        "editorconfig.editorconfig",
+        "redhat.vscode-yaml",
+        "tflint.vscode-tflint",
+        "pahud.infracost",
+        "anton.vscode-tfsec",
+        "koch.ad-docker",
+        "eamodio.gitlens",
+        "mhutchie.git-graph",
+        "codezombiech.gitignore",
+        "gruntfuggly.todo-tree",
+        "alefragnani.bookmarks",
+        "aaron-bond.better-comments",
+        "coenraads.bracket-pair-colorizer",
+        "oderwat.indent-rainbow",
+        "streetsidesoftware.code-spell-checker",
+        "yzhang.markdown-all-in-one",
+        "DavidAnson.vscode-markdownlint",
+        "VisualStudioExptTeam.vscodeintellicode",
+        "foxundermoon.shell-format",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "GitHub.vscode-github-actions",
+        "teabyii.ayu",
+        "anthropic.claude-code",
+        "ms-python.python"
+      ]
+    }
+  }
+}
