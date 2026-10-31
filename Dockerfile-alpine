@@ -26,10 +26,10 @@ RUN sed -i '/community/s/^#//' /etc/apk/repositories
 
 # Configure apk proxy if HTTP_PROXY is set (apk also honors http_proxy/https_proxy
 # env vars natively, this just covers uppercase-only proxy setups)
-RUN if [ -n "${HTTP_PROXY}" ]; then \
-        echo "http_proxy=${HTTP_PROXY}" >> /etc/environment && \
-        echo "https_proxy=${HTTPS_PROXY}" >> /etc/environment; \
-    fi
+# RUN if [ -n "${HTTP_PROXY}" ]; then \
+#         echo "http_proxy=${HTTP_PROXY}" >> /etc/environment && \
+#         echo "https_proxy=${HTTPS_PROXY}" >> /etc/environment; \
+#     fi
 
 # Base OS tooling + CLI utilities that are available directly from apk.
 # gcompat/libc6-compat provide a glibc shim for the few upstream release

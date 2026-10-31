@@ -48,10 +48,10 @@ RUN install -m 0755 -d /etc/apt/keyrings \
 
 
 # Configure apt proxy if HTTP_PROXY is set
-RUN if [ -n "${HTTP_PROXY}" ]; then \
-        echo "Acquire::http::Proxy \"${HTTP_PROXY}\";" > /etc/apt/apt.conf.d/proxy.conf && \
-        echo "Acquire::https::Proxy \"${HTTPS_PROXY}\";" >> /etc/apt/apt.conf.d/proxy.conf; \
-    fi
+# RUN if [ -n "${HTTP_PROXY}" ]; then \
+#         echo "Acquire::http::Proxy \"${HTTP_PROXY}\";" > /etc/apt/apt.conf.d/proxy.conf && \
+#         echo "Acquire::https::Proxy \"${HTTPS_PROXY}\";" >> /etc/apt/apt.conf.d/proxy.conf; \
+#     fi
 
 USER root
 
