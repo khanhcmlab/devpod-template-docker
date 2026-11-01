@@ -7,8 +7,8 @@
   "service": "devpod",
   "containerUser": "${localEnv:USER}",
   // "initializeCommand": "powershell -ExecutionPolicy Bypass -File ./.devcontainer/scripts/initialize-command.ps1",
-  "initializeCommand": "${localWorkspaceFolder}/.devcontainer/scripts/initialize-command.sh",
-  "postCreateCommand": "bash ${containerWorkspaceFolder}/.devcontainer/scripts/setup-claude-mcp.sh",
+  "initializeCommand": "${localWorkspaceFolder}/.devpod/scripts/initialize-command.sh",
+  "postCreateCommand": "bash ${containerWorkspaceFolder}/.devpod/scripts/setup-claude-mcp.sh",
   "mounts": [
     "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
   ],
