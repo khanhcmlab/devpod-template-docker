@@ -27,7 +27,8 @@ RUN sudo mkdir -p /opt/code-review-graph && sudo chown "$(id -u):$(id -g)" /opt/
   UV_TOOL_DIR=/opt/code-review-graph/tools UV_TOOL_BIN_DIR=/opt/code-review-graph/bin \
   uv tool install "code-review-graph==${CRG_VERSION}" && \
   /opt/code-review-graph/bin/code-review-graph --version
-COPY --chmod=0755 scripts/code-review-graph /usr/local/bin/code-review-graph
+COPY scripts/code-review-graph /usr/local/bin/code-review-graph
+RUN sudo chmod 0755 /usr/local/bin/code-review-graph
 # Per-user state (registry, graphs). ~/.local is mounted from the host, so graphs survive rebuilds.
 ENV CRG_HOME="/home/${DockerUSER}/.local/share/code-review-graph"
 
