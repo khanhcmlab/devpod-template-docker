@@ -19,6 +19,8 @@ trap error ERR
 create_directories() {
     echo "Creating directories mounted in docker for persistent data..."
     mkdir -p "${HOME}/.ssh/"
+    mkdir -p "${HOME}/.gemini/"
+    mkdir -p "${HOME}/.claude/"
     mkdir -p "${HOME}/.local/"
     mkdir -p "${HOME}/.gnupg/"
     mkdir -p "${HOME}/.config/gh/"
@@ -30,6 +32,16 @@ create_directories() {
 
 create_files() {
     echo "Creating files mounted in docker ..."
+    if [ -d "${HOME}/.claude.json" ]; then
+        if ! rmdir "${HOME}/.claude.json" 2>/dev/null; then
+            echo "Error: ${HOME}/.claude.json is a non-empty directory (likely created by Docker). Remove or rename it and retry." >&2
+            exit 1
+        fi
+    fi
+    if [ ! -s "${HOME}/.claude.json" ]; then
+        printf '{}\n' > "${HOME}/.claude.json"
+    fi
+    touch "${HOME}/.zsh_history"
     touch "${HOME}/.${REPO_PROJECT}/zsh-history"
     touch "${HOME}/.gitconfig"
     touch "${HOME}/.netrc"
