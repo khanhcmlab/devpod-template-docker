@@ -17,8 +17,12 @@ RUN export NVM_DIR="$HOME/.nvm" && \
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
   npm install -g @anthropic-ai/claude-code
 
-# Install Antigravity CLI (agy)
-RUN curl -fsSL https://antigravity.google/cli/install.sh | bash
+# Install Antigravity CLI (agy) into /opt/antigravity/bin (~/.local is bind-mounted from the host
+# and would hide ~/.local/bin/agy); symlink into /usr/local/bin so it is on PATH.
+RUN sudo mkdir -p /opt/antigravity/bin && sudo chown "$(id -u):$(id -g)" /opt/antigravity/bin && \
+  curl -fsSL https://antigravity.google/cli/install.sh | bash -s -- --dir /opt/antigravity/bin && \
+  sudo ln -sf /opt/antigravity/bin/agy /usr/local/bin/agy && \
+  agy --help >/dev/null
 
 # Install code-review-graph (https://github.com/tirth8205/code-review-graph), a code knowledge graph
 # exposed to Claude Code as an MCP server. The real CLI lives in /opt (~/.local is bind-mounted from
