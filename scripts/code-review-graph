@@ -2,7 +2,7 @@
 # Wrapper around the real code-review-graph CLI that keeps client repositories untouched:
 #   - graph data goes to ${CRG_HOME}/graphs/<repo>-<hash> instead of <repo>/.code-review-graph/
 #   - `install` / `init` are blocked, since they write .mcp.json, CLAUDE.md, skills, hooks and
-#     .gitignore into the repo. The MCP server is registered at Claude Code user scope instead.
+#     .gitignore into the repo. The MCP server is registered for Antigravity instead.
 # Set CRG_ALLOW_REPO_WRITES=1 to bypass the block, or CRG_DATA_DIR to choose the data dir yourself.
 set -euo pipefail
 
@@ -12,7 +12,7 @@ case "${1:-}" in
   install | init)
     if [[ "${CRG_ALLOW_REPO_WRITES:-0}" != "1" ]]; then
       echo "code-review-graph: '$1' is disabled in this devcontainer because it writes config into the repository." >&2
-      echo "The MCP server is already registered for Claude Code at user scope (see 'claude mcp get code-review-graph')." >&2
+      echo "The MCP server is already registered for Antigravity (see 'agy mcp list')." >&2
       echo "Set CRG_ALLOW_REPO_WRITES=1 to run it anyway." >&2
       exit 1
     fi
