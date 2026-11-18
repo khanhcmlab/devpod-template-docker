@@ -16,7 +16,7 @@ services:
       - /etc/localtime:/etc/localtime:cached
       # # SSH
       - ${HOME}/.ssh:/home/${USER}/.ssh:cached
-      # Gemini CLI
+      # Antigravity CLI
       - ${HOME}/.gemini:/home/${USER}/.gemini:cached
       # Claude authentication
       - ${HOME}/.claude.json:/home/${USER}/.claude.json:cached

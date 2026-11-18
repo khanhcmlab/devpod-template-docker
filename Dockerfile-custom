@@ -1,8 +1,6 @@
 FROM devpod:0.0.1
 
-RUN brew install go openshift-cli helm kubectl sops azure-cli kubectx rtk k9s jfrog-cli gemini-cli yamllint kustomize argocd lazygit pre-commit direnv git-delta yq && \
-  brew tap hashicorp/tap && \
-  brew install hashicorp/tap/terraform
+RUN brew install go helm kubectl sops azure-cli kubectx rtk k9s yamllint kustomize argocd lazygit pre-commit direnv git-delta yq tfenv
 
 # git-crypt depends on openssl@4; pulling it in as a dependency makes brew try to unlink openssl@3
 # and fail with "process has already locked .../Cellar/openssl@3". Installing openssl@4 on its own
@@ -18,6 +16,9 @@ RUN echo 'eval "$(direnv hook zsh)"' >> "${HOME}/.zshrc"
 RUN export NVM_DIR="$HOME/.nvm" && \
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
   npm install -g @anthropic-ai/claude-code
+
+# Install Antigravity CLI (agy)
+RUN curl -fsSL https://antigravity.google/cli/install.sh | bash
 
 # Install code-review-graph (https://github.com/tirth8205/code-review-graph), a code knowledge graph
 # exposed to Claude Code as an MCP server. The real CLI lives in /opt (~/.local is bind-mounted from
